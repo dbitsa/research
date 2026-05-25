@@ -59,9 +59,9 @@ Fine-tuning of open-weight language models on curated Q&A datasets derived from 
 **Serving Formats:** Ollama (GGUF), llama.cpp
 
 **Published Artifacts:**
-- [Ollama model](https://ollama.com/dbitsa)
-- [Training dataset](https://huggingface.co/datasets/dbitsa) — curated Q&A pairs (HuggingFace)
-- [llama.cpp GGUF](https://huggingface.co/dbitsa)
+- [Ollama model](https://ollama.com/dbristol/mistral-7b-instruct-aisec-bf16)
+- [Training dataset](https://huggingface.co/datasets/dbristol/aisec-training-data) — curated Q&A pairs (HuggingFace)
+- [llama.cpp GGUF](https://huggingface.co/dbristol/aisec_model_v1)
 
 **Open Questions:**
 - How does framework-specific fine-tuning affect performance on general security reasoning tasks?
