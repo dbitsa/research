@@ -1,16 +1,935 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Research Pages</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DBITSA · AI Security Research</title>
+  <meta name="description" content="Independent applied research at the intersection of AI systems security, behavioral analysis, and governance frameworks.">
+  <meta property="og:title" content="DBITSA · AI Security Research">
+  <meta property="og:description" content="Independent applied research: AI governance framework mapping, LLM fine-tuning, behavioral divergence testing.">
+
+  <!-- Fonts: Space Grotesk (technical/research feel) + Space Mono for code/metadata -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── DESIGN TOKENS ─────────────────────────────────── */
+    :root {
+      --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+      --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
+      --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
+      --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
+      --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
+      --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
+      --text-hero: clamp(2.5rem,   1rem    + 4vw,    4.5rem);
+
+      --space-1: 0.25rem; --space-2: 0.5rem;  --space-3: 0.75rem;
+      --space-4: 1rem;    --space-6: 1.5rem;  --space-8: 2rem;
+      --space-10: 2.5rem; --space-12: 3rem;   --space-16: 4rem;
+      --space-20: 5rem;   --space-24: 6rem;   --space-32: 8rem;
+
+      --font-display: 'Space Grotesk', 'Helvetica Neue', sans-serif;
+      --font-body:    'Space Grotesk', 'Helvetica Neue', sans-serif;
+      --font-mono:    'Space Mono', 'Courier New', monospace;
+
+      --radius-sm: 0.25rem;
+      --radius-md: 0.4rem;
+      --radius-lg: 0.625rem;
+      --radius-full: 9999px;
+
+      --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      --content-narrow: 640px;
+      --content-default: 900px;
+      --content-wide: 1200px;
+    }
+
+    /* ─── DARK MODE (default) ───────────────────────────── */
+    :root, [data-theme="dark"] {
+      --color-bg:             #0e0f10;
+      --color-surface:        #131517;
+      --color-surface-2:      #181a1c;
+      --color-surface-offset: #1d2023;
+      --color-divider:        #252829;
+      --color-border:         #2c3035;
+      --color-text:           #d4d8dc;
+      --color-text-muted:     #778087;
+      --color-text-faint:     #454d54;
+      --color-primary:        #5ba3b4;
+      --color-primary-dim:    #3a7080;
+      --color-primary-glow:   rgba(91,163,180,0.12);
+      --color-accent:         #c8f0f8;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.6);
+    }
+
+    [data-theme="light"] {
+      --color-bg:             #f4f5f6;
+      --color-surface:        #f9fafa;
+      --color-surface-2:      #ffffff;
+      --color-surface-offset: #eef0f1;
+      --color-divider:        #e0e3e6;
+      --color-border:         #d0d5da;
+      --color-text:           #1a1f24;
+      --color-text-muted:     #5a6470;
+      --color-text-faint:     #9aa2aa;
+      --color-primary:        #276070;
+      --color-primary-dim:    #3a8090;
+      --color-primary-glow:   rgba(39,96,112,0.08);
+      --color-accent:         #1a4a5a;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+    }
+
+    /* ─── BASE RESET ────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      scroll-behavior: smooth;
+      scroll-padding-top: var(--space-20);
+    }
+    body {
+      min-height: 100dvh;
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-text);
+      background-color: var(--color-bg);
+      line-height: 1.6;
+    }
+    img { display: block; max-width: 100%; height: auto; }
+    a { color: var(--color-primary); text-decoration: none; transition: color var(--transition); }
+    a:hover { color: var(--color-accent); }
+    button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 3px;
+      border-radius: var(--radius-sm);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ─── LAYOUT ────────────────────────────────────────── */
+    .container {
+      max-width: var(--content-default);
+      margin-inline: auto;
+      padding-inline: var(--space-6);
+    }
+    .container--wide {
+      max-width: var(--content-wide);
+      margin-inline: auto;
+      padding-inline: var(--space-6);
+    }
+
+    /* ─── HEADER / NAV ──────────────────────────────────── */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: oklch(from var(--color-bg) l c h / 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--color-divider);
+      transition: box-shadow var(--transition);
+    }
+    .site-header--scrolled { box-shadow: var(--shadow-sm); }
+    .nav-inner {
+      max-width: var(--content-wide);
+      margin-inline: auto;
+      padding-inline: var(--space-6);
+      height: 3.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-8);
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      color: var(--color-text);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+    .nav-logo:hover { color: var(--color-primary); }
+    .nav-logo svg { flex-shrink: 0; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-6);
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      letter-spacing: 0.01em;
+      transition: color var(--transition);
+    }
+    .nav-links a:hover { color: var(--color-text); }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .theme-toggle {
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-muted);
+      border-radius: var(--radius-sm);
+      transition: color var(--transition), background var(--transition);
+    }
+    .theme-toggle:hover { color: var(--color-text); background: var(--color-surface-offset); }
+
+    /* ─── HERO ──────────────────────────────────────────── */
+    .hero {
+      padding-block: clamp(var(--space-16), 10vw, var(--space-32));
+      border-bottom: 1px solid var(--color-divider);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 80% 50%, var(--color-primary-glow), transparent);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-primary);
+      margin-bottom: var(--space-6);
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: var(--text-hero);
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--color-text);
+      margin-bottom: var(--space-6);
+      max-width: 18ch;
+    }
+    .hero-title strong {
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+    .hero-description {
+      font-size: var(--text-base);
+      color: var(--color-text-muted);
+      max-width: 62ch;
+      line-height: 1.7;
+      margin-bottom: var(--space-10);
+    }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-6);
+      align-items: center;
+    }
+    .hero-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      transition: color var(--transition);
+    }
+    .hero-link:hover { color: var(--color-primary); }
+    .hero-link svg { opacity: 0.6; }
+
+    /* ─── STATUS BADGE ──────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-3);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      border-radius: var(--radius-full);
+      border: 1px solid;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .badge--active     { color: #5ba870; border-color: #5ba870; background: rgba(91,168,112,0.08); }
+    .badge--initial    { color: #c8a85a; border-color: #c8a85a; background: rgba(200,168,90,0.08); }
+    .badge--design     { color: var(--color-primary); border-color: var(--color-primary); background: var(--color-primary-glow); }
+    .badge--operational{ color: #8a9ba8; border-color: #8a9ba8; background: rgba(138,155,168,0.08); }
+    .badge--dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* ─── SECTIONS ──────────────────────────────────────── */
+    .section {
+      padding-block: clamp(var(--space-12), 6vw, var(--space-24));
+      border-bottom: 1px solid var(--color-divider);
+    }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-4);
+      margin-bottom: var(--space-10);
+      flex-wrap: wrap;
+    }
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-text-faint);
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--color-text);
+      line-height: 1.15;
+    }
+
+    /* ─── FEATURED ARTIFACT ──────────────────────────────── */
+    .artifact-featured {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-8);
+      transition: box-shadow var(--transition), border-color var(--transition);
+    }
+    .artifact-featured:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-primary-dim);
+    }
+    .artifact-preview {
+      width: 100%;
+      height: clamp(240px, 35vw, 420px);
+      border: none;
+      display: block;
+      background: var(--color-surface-2);
+    }
+    .artifact-meta {
+      padding: var(--space-6);
+      border-top: 1px solid var(--color-divider);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-6);
+      flex-wrap: wrap;
+    }
+    .artifact-info {}
+    .artifact-title {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: var(--space-2);
+    }
+    .artifact-description {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      max-width: 55ch;
+      line-height: 1.6;
+    }
+    .artifact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary-dim);
+      border-radius: var(--radius-md);
+      white-space: nowrap;
+      transition: background var(--transition), color var(--transition);
+    }
+    .artifact-link:hover {
+      background: var(--color-primary-glow);
+      color: var(--color-accent);
+    }
+
+    /* ─── RESEARCH CARDS GRID ───────────────────────────── */
+    .research-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr));
+      gap: var(--space-4);
+    }
+    .research-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      transition: box-shadow var(--transition), border-color var(--transition);
+    }
+    .research-card:hover {
+      box-shadow: var(--shadow-sm);
+      border-color: var(--color-primary-dim);
+    }
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+    .card-number {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-text-faint);
+      padding-top: 2px;
+    }
+    .card-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-text);
+      line-height: 1.3;
+    }
+    .card-body {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      line-height: 1.65;
+      flex: 1;
+    }
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 2px var(--space-2);
+      color: var(--color-text-faint);
+      border: 1px solid var(--color-divider);
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.02em;
+    }
+    .card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-size: var(--text-xs);
+      color: var(--color-primary);
+      font-family: var(--font-mono);
+      margin-top: auto;
+    }
+    .card-link:hover { color: var(--color-accent); }
+
+    /* ─── FRAMEWORK TABLE ───────────────────────────────── */
+    .framework-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+      gap: var(--space-3);
+      margin-top: var(--space-6);
+    }
+    .framework-item {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .framework-name {
+      font-weight: 600;
+      font-size: var(--text-sm);
+      color: var(--color-text);
+    }
+    .framework-role {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+    .framework-link {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--color-primary);
+      margin-top: var(--space-1);
+    }
+
+    /* ─── ABOUT / PROFILE ───────────────────────────────── */
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-12);
+      align-items: start;
+    }
+    .about-text p {
+      font-size: var(--text-base);
+      color: var(--color-text-muted);
+      line-height: 1.7;
+      margin-bottom: var(--space-4);
+      max-width: 60ch;
+    }
+    .about-links {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+    .about-link-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+    .about-link-item a { color: var(--color-primary); }
+    .about-link-item a:hover { color: var(--color-accent); }
+    .about-stack {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+    }
+    .stack-title {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-text-faint);
+      margin-bottom: var(--space-4);
+    }
+    .stack-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .stack-list li {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .stack-list li::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      flex-shrink: 0;
+    }
+
+    /* ─── FOOTER ────────────────────────────────────────── */
+    .site-footer {
+      padding-block: var(--space-10);
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-6);
+      flex-wrap: wrap;
+    }
+    .footer-left {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-text-faint);
+      line-height: 1.8;
+    }
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-5);
+    }
+    .footer-right a {
+      font-size: var(--text-xs);
+      color: var(--color-text-faint);
+      transition: color var(--transition);
+    }
+    .footer-right a:hover { color: var(--color-primary); }
+
+    /* ─── RESPONSIVE ────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .about-layout { grid-template-columns: 1fr; gap: var(--space-8); }
+      .artifact-meta { flex-direction: column; }
+    }
+    @media (max-width: 480px) {
+      .hero-meta { flex-direction: column; gap: var(--space-3); }
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Research Pages</h1>
-  <ul>
-    <li><a href="./first-paper.html">First paper</a></li>
-    <li><a href="./second-paper.html">Second paper</a></li>
-    <li><a href="./ai_security_3D.html">AI Security 3-D Matrix</a></li>
-  </ul>
+
+  <!-- HEADER -->
+  <header class="site-header" id="site-header">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="DBITSA Research home">
+        <!-- SVG logo: stylized "D" shield mark for security/research -->
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L4 6v8c0 5.5 4.3 10.6 10 12 5.7-1.4 10-6.5 10-12V6L14 2z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+          <path d="M10 14h8M14 10v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+          <circle cx="14" cy="14" r="2" fill="currentColor" opacity="0.7"/>
+        </svg>
+        <span>DBITSA · Research</span>
+      </a>
+      <nav aria-label="Site navigation">
+        <ul class="nav-links">
+          <li><a href="#research">Research</a></li>
+          <li><a href="#frameworks">Frameworks</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="https://github.com/dbitsa/research" target="_blank" rel="noopener noreferrer">GitHub ↗</a></li>
+        </ul>
+      </nav>
+      <div class="nav-right">
+        <button class="theme-toggle" data-theme-toggle aria-label="Switch to light mode">
+          <!-- moon icon default (dark mode) -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container">
+        <p class="hero-eyebrow">Independent Applied Research</p>
+        <h1 class="hero-title" id="hero-title">
+          AI Security<br><strong>Research Lab</strong>
+        </h1>
+        <p class="hero-description">
+          Investigating how behavioral analysis, governance frameworks, and interpretability tooling
+          can be operationalized for AI system security — with a focus on closed enterprise
+          platforms and practitioner-accessible methodology.
+        </p>
+        <div class="hero-meta">
+          <a href="https://github.com/dbitsa/research" class="hero-link" target="_blank" rel="noopener noreferrer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.49.5.09.66-.22.66-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.15-1.11-1.46-1.11-1.46-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.56 9.56 0 0 1 12 6.8c.85.004 1.7.115 2.5.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12c0-5.52-4.48-10-10-10z"/>
+            </svg>
+            dbitsa/research
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURED ARTIFACT -->
+    <section class="section" id="featured" aria-labelledby="featured-title">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Featured</span>
+          <h2 class="section-title" id="featured-title">AI Security 3D Matrix</h2>
+        </div>
+        <div class="artifact-featured">
+          <iframe
+            src="https://dbitsa.github.io/research/ai_security_3D.html"
+            class="artifact-preview"
+            title="AI Security 3D Matrix — interactive visualization"
+            loading="lazy"
+            sandbox="allow-scripts allow-same-origin"
+          ></iframe>
+          <div class="artifact-meta">
+            <div class="artifact-info">
+              <p class="artifact-title">Three-Dimensional AI Security Threat Matrix</p>
+              <p class="artifact-description">
+                Interactive visualization mapping NIST AI RMF governance functions,
+                MITRE ATLAS tactic categories, and OWASP LLM risk classes
+                across a unified threat surface. Produced through extended multi-session
+                research and iterative refinement. An exploratory synthesis tool — not a final deliverable.
+              </p>
+            </div>
+            <a href="https://dbitsa.github.io/research/ai_security_3D.html" class="artifact-link" target="_blank" rel="noopener noreferrer">
+              Open fullscreen ↗
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESEARCH DOMAINS -->
+    <section class="section" id="research" aria-labelledby="research-title">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Active Research</span>
+          <h2 class="section-title" id="research-title">Domains &amp; Status</h2>
+        </div>
+        <div class="research-grid">
+
+          <!-- Domain 1 -->
+          <article class="research-card">
+            <div class="card-top">
+              <span class="card-number">01</span>
+              <span class="badge badge--active"><span class="badge--dot"></span>Active</span>
+            </div>
+            <h3 class="card-title">AI Governance Framework Mapping</h3>
+            <p class="card-body">
+              Systematic analysis of intersections and gaps across the NIST AI RMF family (AI 100-1, AI 100-2e2025, AI 600-1, SP 800-218A, SP 800-53 v5, CSF 2.0), MITRE ATLAS, OWASP LLM Top 10 2025, OWASP Agentic 2026, Google SAIF, ISO/IEC 42001, ISO/IEC 23894, and CSA Agentic AI RMF Profile. Focus on practical cross-framework mappings for enterprise environments.
+            </p>
+            <div class="card-tags">
+              <span class="tag">NIST AI RMF 1.0</span>
+              <span class="tag">NIST AI 600-1</span>
+              <span class="tag">MITRE ATLAS</span>
+              <span class="tag">OWASP LLM 2025</span>
+              <span class="tag">OWASP Agentic 2026</span>
+              <span class="tag">CSA Agentic RMF</span>
+            </div>
+          </article>
+
+          <!-- Domain 2 -->
+          <article class="research-card">
+            <div class="card-top">
+              <span class="card-number">02</span>
+              <span class="badge badge--initial"><span class="badge--dot"></span>Initial release</span>
+            </div>
+            <h3 class="card-title">Domain-Specific Model Fine-Tuning</h3>
+            <p class="card-body">
+              Fine-tuning of Mistral 7B-Instruct on curated Q&amp;A derived from AI security
+              governance frameworks. Published to Ollama and HuggingFace. Research evaluating
+              alignment, factual accuracy, and behavioral consistency against source frameworks
+              is ongoing.
+            </p>
+            <div class="card-tags">
+              <span class="tag">Mistral 7B</span>
+              <span class="tag">Ollama</span>
+              <span class="tag">llama.cpp</span>
+              <span class="tag">Fine-tuning</span>
+            </div>
+            <div style="display:flex; gap: var(--space-4); flex-wrap: wrap; margin-top: var(--space-2);">
+              <a href="https://ollama.com/dbitsa" class="card-link" target="_blank" rel="noopener noreferrer">Ollama model ↗</a>
+              <a href="https://huggingface.co/dbitsa" class="card-link" target="_blank" rel="noopener noreferrer">Dataset ↗</a>
+            </div>
+          </article>
+
+          <!-- Domain 3 -->
+          <article class="research-card">
+            <div class="card-top">
+              <span class="card-number">03</span>
+              <span class="badge badge--design"><span class="badge--dot"></span>Framework design</span>
+            </div>
+            <h3 class="card-title">Behavioral Divergence Testing</h3>
+            <p class="card-body">
+              Developing a methodology to measure and characterize behavioral divergence in closed enterprise LLM platforms (Claude, ChatGPT) under systematic prompt family variation — operating within platform terms of service. Divergence patterns surface implicit boundary conditions and policy artifacts relevant to trust and behavioral consistency assessment. Initial test runs complete; scoring pipeline in development.
+            </p>
+            <div class="card-tags">
+              <span class="tag">Claude</span>
+              <span class="tag">ChatGPT</span>
+              <span class="tag">FuzzyAI</span>
+              <span class="tag">Prompt families</span>
+              <span class="tag">Behavioral consistency</span>
+            </div>
+            <a href="https://github.com/dbitsa/research" class="card-link" target="_blank" rel="noopener noreferrer">
+              Methodology docs ↗
+            </a>
+          </article>
+
+          <!-- Domain 4 -->
+          <article class="research-card">
+            <div class="card-top">
+              <span class="card-number">04</span>
+              <span class="badge badge--operational"><span class="badge--dot"></span>Operational</span>
+            </div>
+            <h3 class="card-title">Local AI Lab Infrastructure</h3>
+            <p class="card-body">
+              On-premises AI research environment for security research workloads. Stack selection, configuration, and
+              tradeoff documentation are treated as artifacts — infrastructure decisions
+              are research outputs.
+            </p>
+            <div class="card-tags">
+              <span class="tag">Ubuntu 24.04</span>
+              <span class="tag">Ollama</span>
+              <span class="tag">Docker</span>
+              <span class="tag">OpenTelemetry</span>
+              <span class="tag">n8n</span>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- FRAMEWORKS -->
+    <section class="section" id="frameworks" aria-labelledby="frameworks-title">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Reference Standards</span>
+          <h2 class="section-title" id="frameworks-title">Governing Frameworks</h2>
+        </div>
+        <p style="font-size: var(--text-sm); color: var(--color-text-muted); max-width: 65ch; margin-bottom: var(--space-2); line-height: 1.65;">
+          Research is grounded in and cross-referenced against these authoritative frameworks.
+          Fine-tuning datasets, threat mappings, behavioral test taxonomies, and governance
+          cross-mappings derive from primary sources.
+        </p>
+        <div class="framework-grid">
+          <div class="framework-item">
+            <span class="framework-name">NIST AI 100-1 · AI RMF 1.0</span>
+            <span class="framework-role">Core governance structure (GOVERN · MAP · MEASURE · MANAGE); primary training data source; control mapping anchor</span>
+            <a href="https://airc.nist.gov/RMF/1" class="framework-link" target="_blank" rel="noopener noreferrer">airc.nist.gov ↗</a>
+          </div>
+          <div class="framework-item">
+            <span class="framework-name">NIST AI 100-2e2025</span>
+            <span class="framework-role">Adversarial ML taxonomy: evasion, poisoning, and misuse attacks for PredAI and GenAI; terminology reference</span>
+            <a href="https://www.nist.gov/publications/adversarial-machine-learning-taxonomy-and-terminology-attacks-and-mitigations-0" class="framework-link" target="_blank" rel="noopener noreferrer">nist.gov ↗</a>
+          </div>
+          <div class="framework-item">
+            <span class="framework-name">NIST AI 600-1</span>
+            <span class="framework-role">Generative AI Profile: 12 GenAI-specific risk categories; companion to AI RMF; confabulation, data privacy, information integrity</span>
+            <a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf" class="framework-link" target="_blank" rel="noopener noreferrer">nist.gov/AI.600-1 ↗</a>
+          </div>
+          <div class="framework-item">
+            <span class="framework-name">NIST SP 800-218A</span>
+            <span class="framework-role">SSDF Community Profile for GenAI: secure development practices for AI model producers, system producers, and acquirers</span>
+            <a href="https://csrc.nist.gov/pubs/sp/800/218/a/final" class="framework-link" target="_blank" rel="noopener noreferrer">csrc.nist.gov ↗</a>
+          </div>
+          <div class="framework-item">
+            <span class="framework-name">NIST SP 800-53 v5</span>
+            <span class="framework-role">Security and privacy controls baseline; cross-mapped to AI RMF functions; enterprise control implementation reference</span>
+            <a href="https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final" class="framework-link" target="_blank" rel="noopener noreferrer">csrc.nist.gov ↗</a>
+          </div>
+          <div class="framework-item">
+            <span class="framework-name">NIST CSF 2.0</span>
+            <span class="framework-role">Cybersecurity Framework v2.0; cross-cutting GOVERN function maps to AI governance structures; supply chain risk management</span>
+            <a href="https://www.nist.gov/cyberframework" class="framework-link" target="_blank" rel="noopener noreferrer">nist.gov/cyberframework ↗</a>
+          </div>
+          <div class="framework-item">
+            <span class="framework-name">ISO/IEC 42001:2023</span>
+            <span class="framework-role">AI management system standard; compliance mapping and gap analysis; organizational AI governance reference</span>
+            <a href="https://www.iso.org/standard/81230.html" class="framework-link" target="_blank" rel="noopener noreferrer">iso.org ↗</a>
+          </div>
+          <div class="framework-item">
+            <span class="framework-name">ISO/IEC 23894:2023</span>
+            <span class="framework-role">AI risk management guidance; complements ISO 42001; risk identification and treatment processes for AI systems</span>
+            <a href="https://www.iso.org/standard/77304.html" class="framework-link" target="_blank" rel="noopener noreferrer">iso.org ↗</a>
+          </div>
+          <div class="framework-item">
+            <span class="framework-name">OWASP LLM Top 10 · 2025</span>
+            <span class="framework-role">LLM vulnerability taxonomy; prompt injection, data leakage, model denial; behavioral divergence test seed categories</span>
+            <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/" class="framework-link" target="_blank" rel="noopener noreferrer">owasp.org ↗</a>
+          </div>
+          <div class="framework-item">
+            <span class="framework-name">OWASP Agentic Top 10 · 2026</span>
+            <span class="framework-role">Security risks for autonomous and agentic AI systems (Dec 2025); memory poisoning, goal manipulation, MCP attack surface</span>
+            <a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/" class="framework-link" target="_blank" rel="noopener noreferrer">genai.owasp.org ↗</a>
+          </div>
+          <div class="framework-item">
+            <span class="framework-name">MITRE ATLAS · CSA Agentic RMF Profile</span>
+            <span class="framework-role">ATLAS: tactic/technique taxonomy for ML systems. CSA 2026 Agentic AI RMF Profile: targeted controls for autonomous agent risk</span>
+            <a href="https://atlas.mitre.org" class="framework-link" target="_blank" rel="noopener noreferrer">atlas.mitre.org ↗</a>
+          </div>
+          <div class="framework-item">
+            <span class="framework-name">Google SAIF · 2026</span>
+            <span class="framework-role">Secure AI Framework: secure-by-default AI development; training data integrity, model robustness, deployment controls</span>
+            <a href="https://safety.google/cybersecurity-advancements/saif/" class="framework-link" target="_blank" rel="noopener noreferrer">safety.google ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="section" id="about" aria-labelledby="about-title">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Researcher</span>
+          <h2 class="section-title" id="about-title">About This Work</h2>
+        </div>
+        <div class="about-layout">
+          <div class="about-text">
+            <p>
+              This is independent applied research with a practitioner background in threat
+              modeling, incident response, NIST 800-53 compliance, and cloud security
+              architecture — applied to the emerging discipline of AI system security.
+            </p>
+            <p>
+              Current focus areas include behavioral consistency testing on closed enterprise
+              LLM platforms (Claude, ChatGPT), governance framework cross-mapping across the
+              NIST AI family and adjacent standards, and local fine-tuning of open-weight models
+              for domain-specific AI security reasoning.
+            </p>
+            <p>
+              Research proceeds in non-linear intensive bursts: extended exploratory phases
+              give way to focused sessions producing discrete artifacts. Work documented here
+              reflects high-level efforts that receive dedicated focus to produce outputs —
+              not a continuous stream of incremental commits.
+            </p>
+            <div class="about-links">
+              <div class="about-link-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.49.5.09.66-.22.66-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.15-1.11-1.46-1.11-1.46-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.56 9.56 0 0 1 12 6.8c.85.004 1.7.115 2.5.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12c0-5.52-4.48-10-10-10z"/></svg>
+                <a href="https://github.com/dbitsa/research" target="_blank" rel="noopener noreferrer">github.com/dbitsa/research</a>
+              </div>
+            </div>
+          </div>
+          <div class="about-stack">
+            <p class="stack-title">Lab Stack</p>
+            <ul class="stack-list">
+              <li>Ubuntu 24.04 LTS · Docker / Docker Compose</li>
+              <li>Ollama · llama.cpp · LM Studio</li>
+              <li>TransformerLens (interpretability)</li>
+              <li>FuzzyAI (behavioral LLM testing)</li>
+              <li>n8n · Node-RED (orchestration)</li>
+              <li>OpenTelemetry (observability)</li>
+              <li>Ansible · Python · Bash</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-left">
+          DBITSA · AI Security Research<br>
+          Independent applied research · Not peer-reviewed
+        </div>
+        <nav class="footer-right" aria-label="Footer navigation">
+          <a href="https://github.com/dbitsa/research" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://github.com/dbitsa/research/blob/main/METHODOLOGY.md" target="_blank" rel="noopener noreferrer">Methodology</a>
+          
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll-aware header
+    const header = document.getElementById('site-header');
+    const onScroll = () => header.classList.toggle('site-header--scrolled', window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Theme toggle
+    (function() {
+      const btn = document.querySelector('[data-theme-toggle]');
+      const root = document.documentElement;
+      let theme = root.getAttribute('data-theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+      function applyTheme(t) {
+        root.setAttribute('data-theme', t);
+        if (btn) {
+          btn.setAttribute('aria-label', 'Switch to ' + (t === 'dark' ? 'light' : 'dark') + ' mode');
+          btn.innerHTML = t === 'dark'
+            ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+            : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+        }
+      }
+
+      applyTheme(theme);
+      if (btn) btn.addEventListener('click', () => { theme = theme === 'dark' ? 'light' : 'dark'; applyTheme(theme); });
+    })();
+  </script>
+
 </body>
 </html>
