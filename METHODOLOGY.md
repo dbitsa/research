@@ -26,7 +26,7 @@ The central research question across all threads:
 Systematic analysis of intersections, gaps, and practical cross-mappings across the major AI security and risk governance frameworks. Particular focus on the full NIST AI family as an integrated set, and on how adjacent standards (ISO, OWASP, CSA) relate to and extend NIST coverage.
 
 **Current Artifact:**
-- [AI Security 3D Matrix](ai_security_3D.html) — interactive three-dimensional visualization mapping NIST AI RMF governance functions, MITRE ATLAS tactic categories, and OWASP LLM risk classes across a unified threat surface. An exploratory synthesis tool produced through extended multi-session research; not a final deliverable.
+- [AI Security 3D Matrix](https://dbitsa.github.io/research/ai_security_3D.html) — interactive three-dimensional visualization mapping NIST AI RMF governance functions, MITRE ATLAS tactic categories, and OWASP LLM risk classes across a unified threat surface. An exploratory synthesis tool produced through extended multi-session research; not a final deliverable.
 
 **Frameworks:**
 
@@ -107,7 +107,7 @@ Design, deployment, and iterative configuration of an on-premises AI research en
 - Inference: Ollama, llama.cpp, LM Studio
 - Orchestration: Docker, Docker Compose
 - Observability: OpenTelemetry
-- Agent development: n8n, Node-RED
+- Agent development: Node-RED, OpenClaw (Removed), LangChain
 - Interpretability: TransformerLens
 - Automation: Ansible, Python, Bash
 
