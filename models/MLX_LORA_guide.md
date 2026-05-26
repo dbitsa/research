@@ -4,7 +4,7 @@
 **Method:** LoRA (Low-Rank Adaptation) — parameter-efficient fine-tuning
 
 ---
-This guide provides an overview from Anthropic Claude on how to tune a local model. It was part of an exercise to see how quickly and accurately Claude Opus 4.7 could create instructions for model tuning on a MacOS. The instructions and configuration could not be used verbatim, but the basic reasoning and steps were valid, and the default environment created by the setup.sh script worked for initial loading of data.
+This guide provides an overview from Anthropic Claude on how to tune a local model. It was part of an exercise to see how quickly and accurately Claude Opus 4.7 could create instructions for model tuning on a MacOS. The instructions and configuration could not be used verbatim, but the basic reasoning and steps were valid, and the default environment created by the setup.sh script worked for initial loading of data. Aside from a llama.cpp issue, though, the instructions were concise and mostly accurate, and the provided scripts performed the majority of the work. This was in stark contrast to similar work on Ubuntu 24 LTS on local hardware, which required constant maintenance to keep the driver and program versions synchronized in order to run at all with AMD GPU and shared memory.
 
 NOTES: 
 While the initial configuration was enough to get started, there were several issues that had to be addressed during the tuning process, including:
@@ -14,7 +14,7 @@ While the initial configuration was enough to get started, there were several is
 - The llama.cpp instructions were completely inaccurate for MacOS as the convert functions were not part of the Brew package, but Claude was able to recommend a minimal docker workaround.
 - Claude incorrectly identified quantization as required for the final model. It was not.
 
-Aside from the llama.cpp issue, though, the instructions were concise and mostly accurate, and the provided scripts performed the majority of the work. This was in stark contrast to similar work on Ubuntu 24, which required constant maintenance to keep the driver and program versions synchronized in order to run at all with AMD GPU and shared memory.
+
 ---
 
 ## Architecture Overview
