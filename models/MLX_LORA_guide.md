@@ -4,16 +4,16 @@
 **Method:** LoRA (Low-Rank Adaptation) — parameter-efficient fine-tuning
 
 ---
+
 This guide provides an overview from Anthropic Claude on how to tune a local model. It was part of an exercise to see how quickly and accurately Claude Opus 4.7 could create instructions for model tuning on a MacOS. The instructions and configuration could not be used verbatim, but the basic reasoning and steps were valid, and the default environment created by the setup.sh script worked for initial loading of data. Aside from a llama.cpp issue, though, the instructions were concise and mostly accurate, and the provided scripts performed the majority of the work. This was in stark contrast to similar work on Ubuntu 24 LTS on local hardware, which required constant maintenance to keep the driver and program versions synchronized in order to run at all with AMD GPU and shared memory.
 
 NOTES: 
 While the initial configuration was enough to get started, there were several issues that had to be addressed during the tuning process, including:
-- Q/A data was not recognized as valid, although it was, so the `prepare_data.py` python script had to be modified.
-- The provided mlx_lm.convert command needed to be modified to operate correctly on MacOS.
-- The LORA parameters had to be optimized, as the original estimation from Claude chose "safe" and not "optimized" values.
-- The llama.cpp instructions were completely inaccurate for MacOS as the convert functions were not part of the Brew package, but Claude was able to recommend a minimal docker workaround.
-- Claude incorrectly identified quantization as required for the final model. It was not.
-
+- Q/A data was not recognized as valid, although it was, so the `prepare_data.py` python script had to be modified. (Fixed through Claude)
+- The provided mlx_lm.convert command needed to be modified to operate correctly on MacOS. (Manually modified)
+- The LORA parameters had to be optimized, as the original estimation from Claude chose "safe" and not "optimized" values. (Manually modified)
+- The llama.cpp instructions were completely inaccurate for MacOS as the convert functions were not part of the Brew package, but Claude was able to recommend a minimal docker workaround. (Fixed through Claude)
+- Claude incorrectly identified quantization as required for the final model. It was not. (Manually modified)
 
 ---
 
