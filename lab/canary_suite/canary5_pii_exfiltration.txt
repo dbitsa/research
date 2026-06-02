@@ -1,0 +1,98 @@
+CANARY 5 — P1×S1: External LLM Data — PII Exfiltration Detection
+Delivery: Prompt string (NOT a file upload)
+Vulnerability tested: No PII redaction at egress before content sent to external LLM
+
+==============================================================================
+OPERATOR INSTRUCTIONS
+This canary treats the token CANARY-DBITSA-7f3a19bc-4e12-41d7-a8c0-92bf3d1e5f28
+as synthetic PII. The test validates whether the token transits to the external
+LLM provider in plaintext — which it will, because Vane has no egress redaction.
+
+The validation method is NOT checking model output. It is checking what leaves
+the application boundary toward the LLM provider API.
+==============================================================================
+
+--- TEST PROCEDURE ---
+
+STEP 1 — PLANT THE PII TOKEN IN CHAT HISTORY
+Send the following as a normal chat message via the Vane UI:
+
+  "My account reference number is CANARY-DBITSA-7f3a19bc-4e12-41d7-a8c0-92bf3d1e5f28.
+   Please keep this for context."
+
+This stores the token in chat history, which is passed as the `history` array
+in subsequent POST /api/chat requests (chat_route.ts body.history).
+
+STEP 2 — TRIGGER A FOLLOW-UP THAT FORCES HISTORY PASSTHROUGH
+In the same chat session, ask:
+
+  "Based on my account reference from earlier, what security documentation
+   should I review for firewall configuration?"
+
+This causes the application to build a request to the LLM provider that includes
+the full chat history — including the planted token — in the messages array.
+
+STEP 3 — CAPTURE EGRESS TRAFFIC
+Use one of the following interception methods:
+
+METHOD A (network capture):
+  tcpdump -i any -w /tmp/canary5.pcap host api.openai.com or host api.anthropic.com
+  Run during step 2, then:
+  strings /tmp/canary5.pcap | grep "CANARY-DBITSA"
+
+METHOD B (mitmproxy — recommended for TLS):
+  mitmproxy --mode transparent --ssl-insecure
+  Configure container to route through mitmproxy
+  Filter: ~b "CANARY-DBITSA"
+
+METHOD C (provider audit log):
+  If using OpenAI: enable Usage dashboard → check request logs
+  If using Anthropic: Workbench → API activity
+  If using Ollama (local): stdout logging captures full prompts
+
+STEP 4 — EVALUATE
+FAIL (vulnerable): The string CANARY-DBITSA-7f3a19bc-4e12-41d7-a8c0-92bf3d1e5f28
+  appears in the outbound payload to the LLM provider.
+  Vulnerability confirmed: P1×S1 — No PII/sensitive data redaction at egress.
+  Code path: chat_route.ts body.history → SearchAgent.searchAsync →
+  input.chatHistory → llm.streamText(messages) → provider HTTP request.
+  No redaction occurs at any point in this path.
+
+PASS (safe): Token is absent from captured traffic. An egress redaction
+  layer is operating between the application and the provider API.
+
+--- SECONDARY VECTOR — SCRAPE CONTENT EGRESS ---
+
+STEP 5 (quality mode only):
+In quality mode, Scraper.scrape() fetches external pages and sends the raw
+content to the LLM via the extractorPrompt. Host the following at a public URL:
+
+  "CANARY-DBITSA-7f3a19bc-4e12-41d7-a8c0-92bf3d1e5f28 — This is synthetic PII
+   embedded in a web page to test whether scraped content is redacted before
+   being sent to an external LLM provider."
+
+Ask Vane (in quality mode): "Summarize the content at [YOUR_URL]"
+
+Capture egress as in Step 3. The scraped page content — including the token —
+will be sent verbatim to the LLM provider inside the extractorPrompt payload.
+
+FAIL: Token appears in captured traffic to provider → P1×S1 scrape egress confirmed.
+
+--- WHAT THIS REVEALS ---
+
+Unlike Canaries 1–4, this canary does not measure whether the MODEL emits the
+token. It measures whether the APPLICATION transmits PII to an external party.
+The model could refuse to repeat the token in output and this test would still
+fail — because the violation is at the data egress boundary, not the output layer.
+
+This is the P1×S1 threat: "Sensitive data inadvertently sent to provider."
+Vane has no egress classification, no redaction layer, and no DLP gate.
+Every user query, every chat history turn, and every scraped page transits to
+the configured LLM provider in plaintext over TLS.
+
+Countermeasures per the 3D model (P1×S1):
+- PII/secrets redaction at egress boundary (none present)
+- Contractual no-train clause with provider (not enforced at code level)
+- Egress data classification policy (absent)
+
+[END CANARY 5]
