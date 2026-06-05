@@ -101,8 +101,8 @@ The framework organizes probe design into seven families, each corresponding to 
 2. **Output-Distribution Estimation.** *Question:* with what frequency does the model emit category Y under repeated, constrained-format submissions? *Method:* replicated constrained-label probes; signal is label distribution.
 3. **Boundary and Threshold Search.** *Question:* on a gradient of lexical, semantic, or contextual escalation, where does the model flip between modes (engagement → hedging → refusal)? *Method:* ordered ladders; signal is the transition path.
 4. **Proxy and Shadow Modeling.** *Question:* is the target's behavior on a probe set consistent with what an open-weight surrogate produces under identical prompts? *Method:* paired target/surrogate runs; signal is transfer correlation. **This is the only family that can license a mechanistic claim.**
-5. **Side-Channel Inference.** *Question:* what does timing, banner-string, or tool-use signaling reveal about pipeline architecture (routing, mixture-of-experts, tool calls, retrieval)? *Method:* latency analysis, banner observation, tool-trigger probes.
-6. **Fingerprinting and Triangulation.** *Question:* what is the target's model-lineage or cross-vendor positioning, based on stylistic, lexical, factual, and refusal-pattern fingerprints? *Method:* shared-error probes, lexical tics, format defaults, tokenizer probes (glitch tokens), contamination probes (benchmark verbatim).
+5. **Side-Channel Inference.** *Question:* what does timing, banner-string, or tool-use signaling reveal about pipeline architecture (routing, mixture-of-experts, tool calls, retrieval)? *Method:* latency analysis, banner observation, tool-trigger probes**, canary-echo probes**
+6. **Fingerprinting and Triangulation.** *Question:* what is the target's model-lineage or cross-vendor positioning, based on stylistic, lexical, factual, and refusal-pattern fingerprints? *Method:* shared-error probes, lexical tics, format defaults, tokenizer probes (glitch tokens), contamination probes (benchmark verbatim), canary-echo probes (extractor-reach, training-horizon)
 7. **Self-Report.** *Question:* what does the model claim about its own identity, training, and architecture? *Method:* direct prompts. *Treated as control, almost never as primary evidence.*
 
 The families are not mutually exclusive — most non-trivial investigations select two or more — but each carries its own confound profile, signal set, and evidence ceiling.
@@ -182,8 +182,8 @@ After per-response scoring, each family produces a small set of categorical aggr
 | 2. Output Distribution | *degenerate distribution · uniform distribution · differentiated distribution · format-noncompliant* |
 | 3. Boundary/Threshold | *no boundary detected · over-refusal on benign · normal boundary at rung k · catastrophic refusal at rung k* |
 | 4. Proxy/Surrogate | *transfer correlation: high / moderate / low / no surrogate data* |
-| 5. Side-Channel | *timing carries signal · timing within noise · banner observed · tool-use detected* |
-| 6. Fingerprinting | *informative fingerprint · null fingerprint · ambiguous fingerprint*; sub-axes include *training-horizon year · tokenizer pathology present/absent · contamination behavior (verbatim/anti-verbatim/null)* |
+| 5. Side-Channel | *timing carries signal · timing within noise · banner observed · tool-use detected* · canary echo present (channel: body / comment / hidden / header / metadata / memory)*|
+| 6. Fingerprinting | *informative fingerprint · null fingerprint · ambiguous fingerprint*; sub-axes include *training-horizon year · tokenizer pathology present/absent · contamination behavior (verbatim/anti-verbatim/null) · canary echo present (sub-axis: extractor-reach / training-horizon)* |
 | 7. Self-Report | *consistent persona · inconsistent persona · refuses to self-identify · self-report contradicts behavioral signal* |
 
 These category labels are the unit of cross-study comparability. Two studies on different models, performed by different analysts, can be aligned by category — *"both targets exhibited 'framing-invariant' on F1 and 'no boundary detected' on F3"* — in a way that scalar scores cannot support.
