@@ -1,4 +1,4 @@
-# Black-Box LLM Probing — Academic Framework, Methodology, and Categorical Analyses
+# Black-Box Behavioral Divergence Analysis (BDA) — Academic Framework, Methodology, and Categorical Analyses
 
 > **Note:** AI outputs are probabilistic, not verified truth → treat as input to your reasoning, not a substitute.
 >
