@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# This script can be used to identify words evaluated to exactly token==1 for inclusion in a canary token.
+# The associated safe_pool_dual_token_words.txt ouput can be included in the canary generator script to ensure
+# low token count and keep canary token count low, increasing the likelihood of recall 
 import csv
 import random
 import re
